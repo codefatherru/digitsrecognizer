@@ -13,6 +13,14 @@
 			"justMyCode": true
 		},
 		{
+			"name": "mnist_torch2",
+			"type": "python",
+			"request": "launch",
+			"program": "${workspaceFolder}/mnist_torch2.py",
+			"console": "integratedTerminal",
+			"justMyCode": true
+		},
+		{
 			"name": "mnist_tensorflow",
 			"type": "python",
 			"request": "launch",

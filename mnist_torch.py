@@ -17,20 +17,21 @@ from torchsummary import summary
 from torch.utils.data import DataLoader, TensorDataset
 
 
-# Загружаем MNIST DataSet
-# Скачайте архив:
-# mkdir data
-# wget https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz -O "data/mnist.npz"
-
-# data2 = mnist.load_data()
-
-tensor_device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')  
+tensor_device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu') 
 
 
 def data_load():
 	r"""
 	Загрузка датасета
 	"""
+	
+	# Загружаем MNIST DataSet
+	# Скачайте архив:
+	# mkdir data
+	# wget https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz -O "data/mnist.npz"
+
+	# data2 = mnist.load_data()
+	
 	data = np.load("data/mnist.npz", allow_pickle=True)
 	data = {
 		"train": {
@@ -202,15 +203,18 @@ def train_model(model_info, data):
 	test_dataset = TensorDataset( data["test"]["x"], data["test"]["y"] )
 	
 	train_count = data["train"]["x"].shape[0]
-	test_count = data["test"]["x"].shape[0]
 	
 	train_loader = DataLoader(
 		train_dataset,
-		batch_size=batch_size, drop_last=True
+		batch_size=batch_size,
+		drop_last=True,
+		shuffle=True
 	)
 	test_loader = DataLoader(
 		test_dataset,
-		batch_size=batch_size, drop_last=True
+		batch_size=batch_size,
+		drop_last=True,
+		shuffle=False
 	)
 	
 	for step_index in range(epochs):
@@ -311,6 +315,9 @@ def photo_test(model_info, data, photo_number):
 	
 	tensor_x = data_normalize_x(photo)
 	tensor_x = tensor_x[None, :]
+	
+	model = model.to(tensor_device)
+	tensor_x = tensor_x.to(tensor_device)
 	tensor_y = model(tensor_x)
 	
 	model_answer = get_answer_from_vector(tensor_y[0].tolist())
@@ -322,26 +329,27 @@ def photo_test(model_info, data, photo_number):
 	plt.show()
 
 	
+if __name__ == '__main__':
 	
-model_path = "data/model_torch.zip"
-model_info = create_model()
-model = model_info["model"]
+	model_path = "data/model_torch.zip"
+	model_info = create_model()
+	model = model_info["model"]
+	
+	if not os.path.isfile(model_path):
+		
+		data = data_create()
+		
+		history = train_model(model_info, data)
+		show_history(history)
+		torch.save(model.state_dict(), model_path)
+		
+		del data
+		
+	else:
+		
+		model.load_state_dict(torch.load(model_path))
+		model.eval()
 
-if not os.path.isfile(model_path):
 	
-	data = data_create()
-	
-	history = train_model(model_info, data)
-	show_history(history)
-	torch.save(model.state_dict(), model_path)
-	
-	del data
-	
-else:
-	
-	model.load_state_dict(torch.load(model_path))
-	model.eval()
-
-
-data = data_load()
-photo_test(model_info, data["test"], 512)
+	data = data_load()
+	photo_test(model_info, data["test"], 512)
