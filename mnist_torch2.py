@@ -93,7 +93,7 @@ class Network(AbstractNetwork):
 			self.control_dataset = TensorDataset( x_train, y_train )
 	
 	
-	def check_answer(self, batch_x, batch_y, batch_predict):
+	def check_answer(self, batch_x, batch_y, batch_predict, type):
 		"""
 		Check batch anser
 		"""
@@ -112,10 +112,10 @@ class Network(AbstractNetwork):
 			y = get_answer_from_vector(tensor_y)
 			predict = get_answer_from_vector(tensor_predict)
 			
-			print ("Model answer", predict)
-			print ("Correct answer", y)
-			
-			plot_show_image(tensor_x, cmap='gray')
+			if type == "control":
+				print ("Model answer", predict)
+				print ("Correct answer", y)				
+				plot_show_image(tensor_x, cmap='gray')
 			
 			if predict == y:
 				res = res + 1
