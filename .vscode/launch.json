@@ -1,0 +1,32 @@
+{
+	// Используйте IntelliSense, чтобы узнать о возможных атрибутах.
+	// Наведите указатель мыши, чтобы просмотреть описания существующих атрибутов.
+	// Для получения дополнительной информации посетите: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "mnist_torch",
+			"type": "python",
+			"request": "launch",
+			"program": "${workspaceFolder}/mnist_torch.py",
+			"console": "integratedTerminal",
+			"justMyCode": true
+		},
+		{
+			"name": "mnist_tensorflow",
+			"type": "python",
+			"request": "launch",
+			"program": "${workspaceFolder}/mnist_tensorflow.py",
+			"console": "integratedTerminal",
+			"justMyCode": true
+		},
+		{
+			"name": "Python: текущий файл",
+			"type": "python",
+			"request": "launch",
+			"program": "${file}",
+			"console": "integratedTerminal",
+			"justMyCode": true
+		}
+	]
+}
