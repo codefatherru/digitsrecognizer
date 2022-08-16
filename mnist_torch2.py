@@ -93,49 +93,32 @@ class Network(AbstractNetwork):
 			self.control_dataset = TensorDataset( x_train, y_train )
 	
 	
-	def check_answer(self, batch_x, batch_y, batch_predict, type):
+	def check_answer(self, tensor_x=None, tensor_y=None, tensor_predict=None, type=None):
 		"""
-		Check batch anser
+		Check answer
 		"""
-		res = 0
 		
-		for i in range(batch_x.shape[0]):
-			
-			tensor_x = batch_x[i] * 256
-			tensor_y = batch_y[i]
-			tensor_predict = batch_predict[i]
-			
-			tensor_x = tensor_x.reshape((28,28)).tolist()
-			tensor_y = tensor_y.tolist()
-			tensor_predict = tensor_predict.round().tolist()
-			
-			y = get_answer_from_vector(tensor_y)
-			predict = get_answer_from_vector(tensor_predict)
-			
-			if type == "control":
-				print ("Model answer", predict)
-				print ("Correct answer", y)				
-				plot_show_image(tensor_x, cmap='gray')
-			
-			if predict == y:
-				res = res + 1
+		y = get_answer_from_vector(tensor_y)
+		predict = get_answer_from_vector(tensor_predict)
 		
-		return res
+		if type == "control":
+			print ("Model answer", predict)
+			print ("Correct answer", y)				
+			#plot_show_image(tensor_x, cmap='gray')
+			
+		return predict == y
 		
 	
 	def create_model(self):
 		
 		AbstractNetwork.create_model(self)
 		
-		self.input_shape = 784
-		self.output_shape = 10
 		self.batch_size = 64
-		self.epochs = 30
 		
 		self.model = nn.Sequential(
-			nn.Linear(self.input_shape, 128),
+			nn.Linear(784, 128),
 			nn.ReLU(),
-			nn.Linear(128, self.output_shape),
+			nn.Linear(128, 10),
 			#nn.Softmax()
 		)	
 	
@@ -145,10 +128,21 @@ class Network(AbstractNetwork):
 		Train epoch callback
 		"""
 		
+		epoch_number = kwargs["epoch_number"]
 		loss_test = kwargs["loss_test"]
-		step_index = kwargs["step_index"]
+		accuracy_train = kwargs["accuracy_train"]
+		accuracy_test = kwargs["accuracy_test"]
 		
-		if loss_test < 0.005 and (step_index + 1) >= 5:
+		if epoch_number >= 20:
+			self.stop_training()
+		
+		if accuracy_train > 0.95:
+			self.stop_training()
+		
+		if accuracy_test > 0.95:
+			self.stop_training()
+		
+		if loss_test < 0.005 and epoch_number >= 5:
 			self.stop_training()
 	
 	
