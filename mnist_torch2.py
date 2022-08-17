@@ -56,7 +56,7 @@ class Network(AbstractNetwork):
 		r"""
 		Название сети
 		"""
-		return os.path.join("data", "model", "1")
+		return os.path.join("data", "model", "2")
 	
 	
 	def load_dataset(self, type):
@@ -93,10 +93,18 @@ class Network(AbstractNetwork):
 			self.control_dataset = TensorDataset( x_train, y_train )
 	
 	
-	def check_answer(self, tensor_x=None, tensor_y=None, tensor_predict=None, type=None):
+	def check_answer(self, **kwargs):
 		"""
 		Check answer
 		"""
+		
+		tensor_x = kwargs["tensor_x"]
+		tensor_y = kwargs["tensor_y"]
+		tensor_predict = kwargs["tensor_predict"]
+		
+		tensor_x = tensor_x.reshape((28,28)).tolist()
+		tensor_y = tensor_y.tolist()
+		tensor_predict = tensor_predict.round().tolist()
 		
 		y = get_answer_from_vector(tensor_y)
 		predict = get_answer_from_vector(tensor_predict)
@@ -113,38 +121,18 @@ class Network(AbstractNetwork):
 		
 		AbstractNetwork.create_model(self)
 		
+		self.max_acc = 0.95
+		self.max_epochs = 10
 		self.batch_size = 64
+		self.input_shape = (784)
+		self.output_shape = (10)
 		
 		self.model = nn.Sequential(
 			nn.Linear(784, 128),
 			nn.ReLU(),
 			nn.Linear(128, 10),
 			#nn.Softmax()
-		)	
-	
-	
-	def train_epoch_callback(self, **kwargs):
-		r"""
-		Train epoch callback
-		"""
-		
-		epoch_number = kwargs["epoch_number"]
-		loss_test = kwargs["loss_test"]
-		accuracy_train = kwargs["accuracy_train"]
-		accuracy_test = kwargs["accuracy_test"]
-		
-		if epoch_number >= 20:
-			self.stop_training()
-		
-		if accuracy_train > 0.95:
-			self.stop_training()
-		
-		if accuracy_test > 0.95:
-			self.stop_training()
-		
-		if loss_test < 0.005 and epoch_number >= 5:
-			self.stop_training()
-	
+		)
 	
 
 if __name__ == '__main__':
@@ -158,7 +146,7 @@ if __name__ == '__main__':
 	
 	# Загрузить сеть с диска
 	net.load()
-	
+	#net._is_trained = False
 	
 	# Обучить сеть, если не обучена
 	if not net.is_trained():
@@ -168,15 +156,24 @@ if __name__ == '__main__':
 		
 		# Обучить сеть
 		net.train()
-		net.train_show_history()
+		net.show_train_history()
 		
 		# Сохранить сеть на диск
 		net.save()
 	
 	
 	# Загрузка контрольного датасета
-	net.load_dataset("control")
+	#net.load_dataset("control")
 	
 	# Проверка модели
-	net.control()
+	#net.control()
+	
+	
+	# Create onnx
+	import torch.onnx
+	
+	data_input = torch.randn(net.input_shape)
+	torch.onnx.export(net.model, data_input, "web/mnist.onxx")
+	
+	
 	
