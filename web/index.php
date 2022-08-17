@@ -31,6 +31,7 @@ if (file_exists($uri_path))
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Проверка модели</title>
 	<script src="./ort.min.js"></script>
+	<script src="./onnx.min.js"></script>
 	<script src="./jquery-3.6.0.min.js"></script>
 	<link rel="stylesheet" href="main.css" type="text/css" />
 </head>
@@ -73,7 +74,7 @@ if (file_exists($uri_path))
 	<button type="button" class="button button--clear">Clear</button>
 	
 	<div class="app__canvas_wrap">
-		<canvas id='canvas' class="app__canvas" width="256" height="256"></canvas>
+		<canvas id='canvas' class="app__canvas" width="128" height="128"></canvas>
 		<div class="app__result">
 			<canvas id='canvas2' class="app__canvas" width="28" height="28"></canvas>
 			<div class="app__result_title">Ответ: <span class="app__result_value"></span></div>
@@ -91,7 +92,7 @@ let canvas2_ctx = canvas2.getContext("2d");
 let prev_x = 0;
 let prev_y = 0;
 let line_width = 16;
-let input_shape = 784;
+let input_shape = [1,28,28];
 
 canvas.addEventListener("mousemove", onMouse("mousemove") );
 canvas.addEventListener("mousedown", onMouse("mousedown") );
@@ -155,18 +156,35 @@ function onMouse(event_name)
 	}
 }
 
-async function init()
+async function init1()
 {
-	model = await ort.InferenceSession.create('./mnist.onxx');
+	model = await ort.InferenceSession.create('./mnist2.onxx', {
+		"executionProviders": ["webgl"]
+	});
 }
 
-async function predict(input)
+async function init2()
+{
+	model = new onnx.InferenceSession({ backendHint: "webgl" });
+	await model.loadModel("./mnist2.onxx");
+}
+
+async function predict1(input)
 {
 	input = Float32Array.from(input);
-	input = new ort.Tensor('float32', input, [input_shape]);
+	input = new ort.Tensor('float32', input, input_shape);
 	let res = await model.run({ 'input': input });
 	let output = res['output'].data;
 	return output;
+}
+
+async function predict2(input)
+{
+	//input = Float32Array.from(input);
+	let output = await model.run([ input ]);
+	let tensor = output.values().next().value;
+	let data = tensor.data;
+	return data;
 }
 
 function getImage()
@@ -175,6 +193,31 @@ function getImage()
 	
 	let data = canvas2_ctx.getImageData(0, 0, 28, 28).data;
 	let input = [];
+	/*
+	for (let y=0; y<28; y++)
+	{
+		let row = [];
+		for (let x=0; x<28; x++)
+		{
+			row.push(0);
+		}
+		//row = Float32Array.from(row);
+		input.push( row );
+	}
+	
+	for (let y=0; y<28; y++)
+	{
+		for (let x=0; x<28; x++)
+		{
+			let i = y*28 + x;
+			let color = Math.round((data[i*4 + 0] + data[i*4 + 1] + data[i*4 + 2]) / 3) / 256;
+			if (data[i*4 + 3] > 50)
+			{
+				if (color < 50) input[y][x] = 1;
+			}
+		}
+	}
+	*/
 	
 	for (let i=0; i<28*28; i++)
 	{
@@ -197,7 +240,7 @@ async function recognizeImage()
 	let res = null;
 	let input = getImage();
 	
-	let output = await predict(input);
+	let output = await predict1(input);
 	
 	output = Array.from(output);
 	output = output.map(function(value, index){
@@ -217,11 +260,11 @@ async function recognizeImage()
 	
 	$('.app__result_value').html(output[0].index);
 	
-	console.log(output);
+	//console.log(output);
 	
 }
 
-init();
+init1();
 
 </script>
 	
