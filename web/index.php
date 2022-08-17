@@ -51,17 +51,16 @@ if (file_exists($uri_path))
 .app__canvas_wrap{
 	display: flex;
 }
-.app__table{
+.app__result{
 	padding-left: 50px;
 }
-.app__table_label, .app__table_value{
-	padding: 10px;
-}
-.app__table_label{
+.app__result_title{
+	padding-bottom: 20px;
 	font-size: 20px;
 }
-.app__table_value{
-	width: 100px;
+.button{
+	padding: 6px 12px;
+	margin-bottom: 10px;
 }
 </style>
 
@@ -71,18 +70,14 @@ if (file_exists($uri_path))
 	
 	<div class="app__info">Нарисуйте цифру мышкой. Левая кнопка рисует, правая стирает</div>
 	
+	<button type="button" class="button button--clear">Clear</button>
+	
 	<div class="app__canvas_wrap">
 		<canvas id='canvas' class="app__canvas" width="256" height="256"></canvas>
-		<table class="app__table">
-			<?php for ($i=0; $i<5; $i++){ ?>
-			<tr>
-				<td class="app__table_label"><?= $i ?></td>
-				<td class="app__table_value" data-value="<?= $i ?>"></td>
-				<td class="app__table_label"><?= $i + 5 ?></td>
-				<td class="app__table_value" data-value="<?= $i + 5 ?>"></td>
-			</tr>
-			<?php } ?>
-		</table>
+		<div class="app__result">
+			<canvas id='canvas2' class="app__canvas" width="28" height="28"></canvas>
+			<div class="app__result_title">Ответ: <span class="app__result_value"></span></div>
+		</div>
 	</div>
 	
 </div>
@@ -92,14 +87,22 @@ let is_draw = false;
 let model = null;
 let canvas = document.getElementById('canvas');
 let canvas_ctx = canvas.getContext("2d");
+let canvas2_ctx = canvas2.getContext("2d");
 let prev_x = 0;
 let prev_y = 0;
-let line_width = 10;
+let line_width = 16;
+let input_shape = 784;
 
 canvas.addEventListener("mousemove", onMouse("mousemove") );
 canvas.addEventListener("mousedown", onMouse("mousedown") );
 document.addEventListener("mouseup", onMouse("mouseup") );
 document.addEventListener("contextmenu", onMouse("contextmenu") );
+
+$('.button--clear').click(function(){
+	canvas_ctx.clearRect(0, 0, canvas.width, canvas.height);
+	canvas2_ctx.clearRect(0, 0, canvas2.width, canvas2.height);
+	$('.app__result_value').html('');
+});
 
 function drawLine(x1, y1, x2, y2, color)
 {
@@ -127,7 +130,11 @@ function onMouse(event_name)
 		{
 			color = "white";
 		}
-		if (event_name == "mouseup" || event_name == "mouseout") is_draw = false;
+		if (event_name == "mouseup" || event_name == "mouseout")
+		{
+			if (is_draw) recognizeImage();
+			is_draw = false;
+		}
 		if (event_name == "mousedown") is_draw = true;
 		
 		if (is_draw && event_name == "mousedown")
@@ -148,13 +155,73 @@ function onMouse(event_name)
 	}
 }
 
-
-async function init_onxx()
+async function init()
 {
 	model = await ort.InferenceSession.create('./mnist.onxx');
 }
 
-init_onxx();
+async function predict(input)
+{
+	input = Float32Array.from(input);
+	input = new ort.Tensor('float32', input, [input_shape]);
+	let res = await model.run({ 'input': input });
+	let output = res['output'].data;
+	return output;
+}
+
+function getImage()
+{
+	canvas2_ctx.drawImage(canvas, 0, 0, 28, 28);
+	
+	let data = canvas2_ctx.getImageData(0, 0, 28, 28).data;
+	let input = [];
+	
+	for (let i=0; i<28*28; i++)
+	{
+		let color = Math.round((data[i*4 + 0] + data[i*4 + 1] + data[i*4 + 2]) / 3) / 256;
+		if (data[i*4 + 3] > 50)
+		{
+			if (color > 50) input.push(0);
+			else input.push(1);
+		}
+		else
+		{
+			input.push(0);
+		}
+	}
+	return input;
+}
+
+async function recognizeImage()
+{
+	let res = null;
+	let input = getImage();
+	
+	let output = await predict(input);
+	
+	output = Array.from(output);
+	output = output.map(function(value, index){
+		return {
+			"index": index,
+			"value": value,
+		}
+	});
+	
+	//console.log(output);
+	
+	output = output.sort(function(a, b){
+		if (a.value > b.value) return -1;
+		if (a.value < b.value) return 1;
+		return 0
+	});
+	
+	$('.app__result_value').html(output[0].index);
+	
+	console.log(output);
+	
+}
+
+init();
 
 </script>
 	

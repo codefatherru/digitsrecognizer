@@ -98,6 +98,7 @@ class Network(AbstractNetwork):
 		Check answer
 		"""
 		
+		type = kwargs["type"]
 		tensor_x = kwargs["tensor_x"]
 		tensor_y = kwargs["tensor_y"]
 		tensor_predict = kwargs["tensor_predict"]
@@ -112,7 +113,7 @@ class Network(AbstractNetwork):
 		if type == "control":
 			print ("Model answer", predict)
 			print ("Correct answer", y)				
-			#plot_show_image(tensor_x, cmap='gray')
+			show_image_in_plot(tensor_x, cmap='gray')
 			
 		return predict == y
 		
@@ -133,6 +134,21 @@ class Network(AbstractNetwork):
 			nn.Linear(128, 10),
 			#nn.Softmax()
 		)
+	
+	
+def save_onnx(net):
+	
+	# Create onnx
+	import torch.onnx
+	
+	data_input = torch.randn(net.input_shape)
+	torch.onnx.export(
+		net.model,
+		data_input,
+		"web/mnist.onxx",
+		input_names = ['input'],
+		output_names = ['output']
+	)
 	
 
 if __name__ == '__main__':
@@ -163,17 +179,14 @@ if __name__ == '__main__':
 	
 	
 	# Загрузка контрольного датасета
-	#net.load_dataset("control")
+	net.load_dataset("control")
 	
 	# Проверка модели
-	#net.control()
+	net.control()
 	
 	
 	# Create onnx
-	import torch.onnx
-	
-	data_input = torch.randn(net.input_shape)
-	torch.onnx.export(net.model, data_input, "web/mnist.onxx")
+	#save_onnx(net)
 	
 	
 	
