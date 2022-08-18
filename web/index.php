@@ -59,6 +59,14 @@ if (file_exists($uri_path))
 	padding-bottom: 20px;
 	font-size: 20px;
 }
+.app__result_prob_title{
+	padding-top: 10px;
+	font-size: 18px;
+}
+.app__result_prob_row{
+	padding-top: 5px;
+	font-size: 18px;
+}
 .button{
 	padding: 6px 12px;
 	margin-bottom: 10px;
@@ -74,10 +82,12 @@ if (file_exists($uri_path))
 	<button type="button" class="button button--clear">Clear</button>
 	
 	<div class="app__canvas_wrap">
-		<canvas id='canvas' class="app__canvas" width="128" height="128"></canvas>
+		<canvas id='canvas' class="app__canvas" width="256" height="256"></canvas>
 		<div class="app__result">
-			<canvas id='canvas2' class="app__canvas" width="28" height="28"></canvas>
 			<div class="app__result_title">Ответ: <span class="app__result_value"></span></div>
+			<canvas id='canvas2' class="app__canvas" width="28" height="28"></canvas>
+			<div class="app__result_prob_title">Вероятность:</div>
+			<div class="app__result_prob"></div>
 		</div>
 	</div>
 	
@@ -103,6 +113,7 @@ $('.button--clear').click(function(){
 	canvas_ctx.clearRect(0, 0, canvas.width, canvas.height);
 	canvas2_ctx.clearRect(0, 0, canvas2.width, canvas2.height);
 	$('.app__result_value').html('');
+	$('.app__result_prob').html('');
 });
 
 function drawLine(x1, y1, x2, y2, color)
@@ -159,7 +170,7 @@ function onMouse(event_name)
 async function init1()
 {
 	model = await ort.InferenceSession.create('./mnist2.onxx', {
-		"executionProviders": ["webgl"]
+		//"executionProviders": ["webgl"]
 	});
 }
 
@@ -187,50 +198,101 @@ async function predict2(input)
 	return data;
 }
 
+function getRGBAColor(data, pos)
+{
+	let color = Math.round((data[pos*4 + 0] + data[pos*4 + 1] + data[pos*4 + 2]) / 3) / 256;
+	if (data[pos*4 + 3] > 50)
+	{
+		if (color > 50) return 0;
+		else return 1;
+	}
+	
+	return 0;
+}
+
+function getImageBox()
+{
+	let left = 0;
+	let right = 255;
+	let top = 0;
+	let bottom = 255;
+	
+	function isEmptyRow(data, y)
+	{
+		for (let x=0; x<256; x++)
+		{
+			let color = getRGBAColor(data, y*256 + x);
+			if (color == 1)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	function isEmptyCol(data, x)
+	{
+		for (let y=0; y<256; y++)
+		{
+			let color = getRGBAColor(data, y*256 + x);
+			if (color == 1)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	let data = canvas_ctx.getImageData(0, 0, 256, 256).data;
+	
+	/* Определяем границы цифры */
+	while ( left < 256 && isEmptyCol(data, left) ) left++;
+	while ( right >= 0 && isEmptyCol(data, right) ) right--;
+	while ( top < 256 && isEmptyRow(data, top) ) top++;
+	while ( bottom >= 0 && isEmptyRow(data, bottom) ) bottom--;
+	
+	//console.log( left, top, right, bottom );
+	
+	let x = left;
+	let y = top;
+	let w = right - left + 1;
+	let h = bottom - top + 1;
+	let res = { x: x, y: y, w: w, h: h };
+	
+	if (w > h)
+	{
+		res["y"] = y - Math.round((w - h) / 2);
+		res["h"] = w;
+	}
+	else
+	{
+		res["x"] = x - Math.round((h - w) / 2);
+		res["w"] = h;
+	}
+	
+	res["x"] -= 2;
+	res["y"] -= 2;
+	res["h"] += 4;
+	res["w"] += 4;
+	//console.log( res );
+	
+	return res;
+}
+
 function getImage()
 {
-	canvas2_ctx.drawImage(canvas, 0, 0, 28, 28);
+	let box = getImageBox();
+	
+	canvas2_ctx.clearRect(0, 0, canvas2.width, canvas2.height);
+	canvas2_ctx.drawImage(canvas, box.x, box.y, box.w, box.h, 0, 0, 28, 28);
 	
 	let data = canvas2_ctx.getImageData(0, 0, 28, 28).data;
 	let input = [];
-	/*
-	for (let y=0; y<28; y++)
-	{
-		let row = [];
-		for (let x=0; x<28; x++)
-		{
-			row.push(0);
-		}
-		//row = Float32Array.from(row);
-		input.push( row );
-	}
-	
-	for (let y=0; y<28; y++)
-	{
-		for (let x=0; x<28; x++)
-		{
-			let i = y*28 + x;
-			let color = Math.round((data[i*4 + 0] + data[i*4 + 1] + data[i*4 + 2]) / 3) / 256;
-			if (data[i*4 + 3] > 50)
-			{
-				if (color < 50) input[y][x] = 1;
-			}
-		}
-	}
-	*/
 	
 	for (let i=0; i<28*28; i++)
 	{
-		let color = Math.round((data[i*4 + 0] + data[i*4 + 1] + data[i*4 + 2]) / 3) / 256;
-		if (data[i*4 + 3] > 50)
-		{
-			if (color > 50) input.push(0);
-			else input.push(1);
-		}
-		else
-		{
-			input.push(0);
-		}
+		let color = getRGBAColor(data, i);
+		input.push(color);
 	}
 	return input;
 }
@@ -250,18 +312,34 @@ async function recognizeImage()
 		}
 	});
 	
-	//console.log(output);
-	
 	output = output.sort(function(a, b){
 		if (a.value > b.value) return -1;
 		if (a.value < b.value) return 1;
 		return 0
 	});
 	
+	let sum = output.reduce(
+		(s, item) => {
+			return item.value > 0 ? s + item.value : s
+		}, 0
+	);
+	//let max = Math.max.apply(null, output);
+	//let min = 0;
+	
+	//console.log (output);
 	$('.app__result_value').html(output[0].index);
 	
-	//console.log(output);
-	
+	$('.app__result_prob').html('');
+	for (index in output)
+	{
+		let item = output[index];
+		if (item.value > 0)
+		{
+			$('.app__result_prob').append('<div class="app__result_prob_row">' +
+				item.index + ' - ' + Math.round( item.value / sum * 100 ) + '%' +
+			'</div>');
+		}
+	}
 }
 
 init1();
