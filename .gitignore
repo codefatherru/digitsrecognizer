@@ -1,6 +1,6 @@
 data
 test.py
-web/*.onxx
+web/*.onnx
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

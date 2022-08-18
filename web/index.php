@@ -43,7 +43,7 @@ if (file_exists($uri_path))
 	margin-left: auto;
 	margin-right: auto;
 }
-.app__canvas{
+canvas{
 	border: 2px solid black;
 }
 .app__info{
@@ -65,7 +65,11 @@ if (file_exists($uri_path))
 }
 .app__result_prob_row{
 	padding-top: 5px;
+	padding-bottom: 5px;
 	font-size: 18px;
+}
+.app__result_prob_row:first-child{
+	background-color: #0ef10e;
 }
 .button{
 	padding: 6px 12px;
@@ -82,10 +86,12 @@ if (file_exists($uri_path))
 	<button type="button" class="button button--clear">Clear</button>
 	
 	<div class="app__canvas_wrap">
-		<canvas id='canvas' class="app__canvas" width="256" height="256"></canvas>
+		<div class="app__canvas">	
+			<canvas id='canvas' width="256" height="256"></canvas>
+		</div>
 		<div class="app__result">
 			<div class="app__result_title">Ответ: <span class="app__result_value"></span></div>
-			<canvas id='canvas2' class="app__canvas" width="28" height="28"></canvas>
+			<canvas id='canvas2' width="28" height="28"></canvas>
 			<div class="app__result_prob_title">Вероятность:</div>
 			<div class="app__result_prob"></div>
 		</div>
@@ -169,7 +175,7 @@ function onMouse(event_name)
 
 async function init1()
 {
-	model = await ort.InferenceSession.create('./mnist2.onxx', {
+	model = await ort.InferenceSession.create('./mnist3.onnx', {
 		//"executionProviders": ["webgl"]
 	});
 }
@@ -177,7 +183,7 @@ async function init1()
 async function init2()
 {
 	model = new onnx.InferenceSession({ backendHint: "webgl" });
-	await model.loadModel("./mnist2.onxx");
+	await model.loadModel("./mnist3.onnx");
 }
 
 async function predict1(input)
@@ -258,22 +264,27 @@ function getImageBox()
 	let w = right - left + 1;
 	let h = bottom - top + 1;
 	let res = { x: x, y: y, w: w, h: h };
+	let max = 0;
 	
 	if (w > h)
 	{
 		res["y"] = y - Math.round((w - h) / 2);
 		res["h"] = w;
+		max = w;
 	}
 	else
 	{
 		res["x"] = x - Math.round((h - w) / 2);
 		res["w"] = h;
+		max = h;
 	}
 	
-	res["x"] -= 2;
-	res["y"] -= 2;
-	res["h"] += 4;
-	res["w"] += 4;
+	max = Math.round(max * 0.1);
+	
+	res["x"] -= max;
+	res["y"] -= max;
+	res["h"] += max*2;
+	res["w"] += max*2;
 	//console.log( res );
 	
 	return res;
@@ -330,6 +341,7 @@ async function recognizeImage()
 	$('.app__result_value').html(output[0].index);
 	
 	$('.app__result_prob').html('');
+	let app_row_class = [];
 	for (index in output)
 	{
 		let item = output[index];
