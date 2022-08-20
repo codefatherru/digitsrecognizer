@@ -1,0 +1,32 @@
+<script src="./ort.min.js"></script>
+<script>
+let input_shape = [1, 28, 28];
+
+async function load_model()
+{
+	model = await ort.InferenceSession.create('./mnist3.onnx', {
+		"executionProviders": ["webgl"]
+	});
+	return model;
+}
+
+async function predict(model, input)
+{
+	input = Float32Array.from(input);
+	input = new ort.Tensor('float32', input, input_shape);
+	let res = await model.run({ 'input': input });
+	let output = res['output'].data;
+	return output;
+}
+
+async function run()
+{
+	let input = [...Array(28 * 28).keys()];
+	let model = await load_model();
+	let output = await predict(model, input);
+	console.log();
+}
+
+run();
+
+</script>

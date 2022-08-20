@@ -31,14 +31,14 @@ if (file_exists($uri_path))
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Проверка модели</title>
 	<script src="./ort.min.js"></script>
-	<script src="./onnx.min.js"></script>
+	<!--<script src="./onnx.min.js"></script>-->
 	<script src="./jquery-3.6.0.min.js"></script>
 	<link rel="stylesheet" href="main.css" type="text/css" />
 </head>
 <body>
 
 <style>
-.content{
+.app{
 	width: 500px;
 	margin-left: auto;
 	margin-right: auto;
@@ -68,16 +68,19 @@ canvas{
 	padding-bottom: 5px;
 	font-size: 18px;
 }
-.app__result_prob_row:first-child{
+.app__result_prob_row.select{
 	background-color: #0ef10e;
 }
 .button{
 	padding: 6px 12px;
 	margin-bottom: 10px;
 }
+#canvas2{
+	/*display: none;*/
+}
 </style>
 
-<div class="content app">
+<div class="app">
 	
 	<h1>Проверка модели</h1>
 	
@@ -88,12 +91,24 @@ canvas{
 	<div class="app__canvas_wrap">
 		<div class="app__canvas">	
 			<canvas id='canvas' width="256" height="256"></canvas>
+			<div>Конвертация:</div>
+			<canvas id='canvas2' width="28" height="28"></canvas>
 		</div>
 		<div class="app__result">
 			<div class="app__result_title">Ответ: <span class="app__result_value"></span></div>
-			<canvas id='canvas2' width="28" height="28"></canvas>
 			<div class="app__result_prob_title">Вероятность:</div>
-			<div class="app__result_prob"></div>
+			<div class="app__result_prob">
+				<div class="app__result_prob_row" data-index="1">1 - <span></span></div>
+				<div class="app__result_prob_row" data-index="2">2 - <span></span></div>
+				<div class="app__result_prob_row" data-index="3">3 - <span></span></div>
+				<div class="app__result_prob_row" data-index="4">4 - <span></span></div>
+				<div class="app__result_prob_row" data-index="5">5 - <span></span></div>
+				<div class="app__result_prob_row" data-index="6">6 - <span></span></div>
+				<div class="app__result_prob_row" data-index="7">7 - <span></span></div>
+				<div class="app__result_prob_row" data-index="8">8 - <span></span></div>
+				<div class="app__result_prob_row" data-index="9">9 - <span></span></div>
+				<div class="app__result_prob_row" data-index="0">0 - <span></span></div>
+			</div>
 		</div>
 	</div>
 	
@@ -113,13 +128,14 @@ let input_shape = [1,28,28];
 canvas.addEventListener("mousemove", onMouse("mousemove") );
 canvas.addEventListener("mousedown", onMouse("mousedown") );
 document.addEventListener("mouseup", onMouse("mouseup") );
-document.addEventListener("contextmenu", onMouse("contextmenu") );
+canvas.addEventListener("contextmenu", onMouse("contextmenu") );
 
 $('.button--clear').click(function(){
 	canvas_ctx.clearRect(0, 0, canvas.width, canvas.height);
 	canvas2_ctx.clearRect(0, 0, canvas2.width, canvas2.height);
 	$('.app__result_value').html('');
-	$('.app__result_prob').html('');
+	$('.app__result_prob_row').removeClass('select');
+	$('.app__result_prob_row span').html('');
 });
 
 function drawLine(x1, y1, x2, y2, color)
@@ -183,7 +199,7 @@ async function init1()
 async function init2()
 {
 	model = new onnx.InferenceSession({ backendHint: "webgl" });
-	await model.loadModel("./mnist3.onnx");
+	await model.loadModel("./mnist4.onnx");
 }
 
 async function predict1(input)
@@ -206,7 +222,7 @@ async function predict2(input)
 
 function getRGBAColor(data, pos)
 {
-	let color = Math.round((data[pos*4 + 0] + data[pos*4 + 1] + data[pos*4 + 2]) / 3) / 256;
+	let color = Math.round((data[pos*4 + 0] + data[pos*4 + 1] + data[pos*4 + 2]) / 3);
 	if (data[pos*4 + 3] > 50)
 	{
 		if (color > 50) return 0;
@@ -257,7 +273,7 @@ function getImageBox()
 	while ( top < 256 && isEmptyRow(data, top) ) top++;
 	while ( bottom >= 0 && isEmptyRow(data, bottom) ) bottom--;
 	
-	//console.log( left, top, right, bottom );
+	console.log( left, top, right, bottom );
 	
 	let x = left;
 	let y = top;
@@ -285,7 +301,7 @@ function getImageBox()
 	res["y"] -= max;
 	res["h"] += max*2;
 	res["w"] += max*2;
-	//console.log( res );
+	console.log( res );
 	
 	return res;
 }
@@ -334,24 +350,23 @@ async function recognizeImage()
 			return item.value > 0 ? s + item.value : s
 		}, 0
 	);
-	//let max = Math.max.apply(null, output);
-	//let min = 0;
 	
-	//console.log (output);
-	$('.app__result_value').html(output[0].index);
+	let result_value = output[0].index;
+	$('.app__result_value').html(result_value);
 	
-	$('.app__result_prob').html('');
 	let app_row_class = [];
 	for (index in output)
 	{
 		let item = output[index];
 		if (item.value > 0)
 		{
-			$('.app__result_prob').append('<div class="app__result_prob_row">' +
-				item.index + ' - ' + Math.round( item.value / sum * 100 ) + '%' +
-			'</div>');
+			$('.app__result_prob_row[data-index=' + item.index + '] span').html(
+				Math.round( item.value / sum * 100 ) + '%'
+			);
 		}
 	}
+	$('.app__result_prob_row').removeClass('select');
+	$('.app__result_prob_row[data-index=' + result_value + ']').addClass('select');
 }
 
 init1();

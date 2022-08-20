@@ -32,7 +32,7 @@ class Mnist4(Mnist):
 		
 		self.max_acc = 0.95
 		self.max_epochs = 50
-		self.min_epochs = 15
+		self.min_epochs = 5
 		self.batch_size = 128
 		self.input_shape = (28,28)
 		self.output_shape = (10)
@@ -48,17 +48,18 @@ class Mnist4(Mnist):
 				self.net = net
 				
 				# Дополнительные слои
+				self.softmax = nn.Softmax(-1)
 				self.max_pool = nn.MaxPool2d(2, 2)
 				self.drop25 = nn.Dropout(0.25)
 				self.drop50 = nn.Dropout(0.50)
 				
 				# Сверточный слой
-				self.conv1 = nn.Conv2d(1, 32, kernel_size=3)
-				self.conv2 = nn.Conv2d(32, 64, kernel_size=3)
+				self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=(1,1))
+				self.conv2 = nn.Conv2d(32, 128, kernel_size=3, padding=(1,1))
 				
 				# Полносвязный слой
-				self.fc1 = nn.Linear(9216, 128)
-				self.fc2 = nn.Linear(128, net.output_shape)
+				self.fc1 = nn.Linear(6272, 512)
+				self.fc2 = nn.Linear(512, net.output_shape)
 			
 			
 			def forward(self, x):
@@ -78,38 +79,38 @@ class Mnist4(Mnist):
 				x = F.relu(self.conv1(x))
 				self.net.print_debug("Conv1:", x.shape)
 				
-				# Выход: 32, 26, 26
+				# Выход: 32, 28, 28
 				
 				# Макс пулинг
-				#x = self.max_pool(x)
+				x = self.max_pool(x)
 				self.net.print_debug("Max pool1:", x.shape)
 				
-				# Выход: 32, 26, 26
+				# Выход: 32, 14, 14
 				
 				# Сверточный слой 2
 				x = F.relu(self.conv2(x))
 				self.net.print_debug("Conv2:", x.shape)
 				
-				# Выход: 64, 24, 24
+				# Выход: 128, 14, 14
 				
 				# Макс пулинг
 				x = self.max_pool(x)
 				self.net.print_debug("Max pool2:", x.shape)
 				
-				# Выход: 64, 12, 12
+				# Выход: 128, 7, 7
 				
 				# Выравнивающий слой
 				x = self.drop25(x)
-				x = x.view(-1, 9216)
+				x = x.view(-1, 6272)
 				self.net.print_debug("Line:", x.shape)
 				
-				# Выход: 9216
+				# Выход: 6272
 				
 				# Полносвязный слои
 				x = F.relu(self.fc1(x))
 				x = self.drop50(x)
 				x = self.fc2(x)
-				#x = F.log_softmax(x, dim=1)
+				x = self.softmax(x)
 				
 				self.net.print_debug("Output:", x.shape)
 				

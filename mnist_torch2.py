@@ -18,6 +18,7 @@ from ai_helper import *
 from model.Mnist import Mnist
 from model.Mnist2 import Mnist2
 from model.Mnist3 import Mnist3
+from model.Mnist4 import Mnist4
 
 	
 def check_model(net:Mnist):	
@@ -30,8 +31,10 @@ def check_model(net:Mnist):
 
 if __name__ == '__main__':
 	
-	net = Mnist3()
-		
+	net = Mnist4()
+	
+	print (net.get_name())
+	
 	# Создать модель
 	net.create_model()
 	net.summary()
@@ -39,8 +42,8 @@ if __name__ == '__main__':
 	#check_model(net)
 	
 	# Загрузить сеть с диска
-	#net.load()
-	net._is_trained = False
+	net.load()
+	#net._is_trained = False
 	
 	# Обучить сеть, если не обучена
 	if not net.is_trained():
@@ -57,10 +60,10 @@ if __name__ == '__main__':
 	
 	
 	# Загрузка контрольного датасета
-	#net.load_dataset(type="control", count=512)
+	net.load_dataset(type="control", count=512)
 	
 	# Проверка модели
-	#net.control()
+	net.control()
 	
 	
 	# Create onnx
