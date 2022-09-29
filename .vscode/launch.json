@@ -5,29 +5,14 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "mnist_torch",
+			"name": "main",
 			"type": "python",
 			"request": "launch",
-			"program": "${workspaceFolder}/mnist_torch.py",
+			"program": "${workspaceFolder}/main.py",
 			"console": "integratedTerminal",
 			"justMyCode": true
 		},
-		{
-			"name": "mnist_torch2",
-			"type": "python",
-			"request": "launch",
-			"program": "${workspaceFolder}/mnist_torch2.py",
-			"console": "integratedTerminal",
-			"justMyCode": true
-		},
-		{
-			"name": "mnist_tensorflow",
-			"type": "python",
-			"request": "launch",
-			"program": "${workspaceFolder}/mnist_tensorflow.py",
-			"console": "integratedTerminal",
-			"justMyCode": true
-		},
+
 		{
 			"name": "Python: текущий файл",
 			"type": "python",

@@ -11,45 +11,50 @@ import numpy as np
 from torch import nn
 from torch.utils.data import TensorDataset
 
-from ai_helper import *
+from tiny_ai_helper import *
 
 
 
 def data_normalize_x(data_x):
-	r"""
+	"""
 	Нормализация датасета по x
 	"""
+	
 	data_x = torch.from_numpy(data_x)
-	
-	"""
-	data_x_shape_len = len(data_x.shape)
-	
-	if data_x_shape_len == 3:
-		data_x = data_x.reshape(data_x.shape[0], -1)
-	elif data_x_shape_len == 2:
-		data_x = data_x.reshape(-1)
-	"""
-	
 	data_x = data_x.to(torch.float32) / 255.0
+	
 	return data_x
 	
 
 def data_normalize_y(data_y):
-	r"""
+	
+	"""
 	Нормализация датасета по y
 	"""
+	
 	data_y = list(map(get_vector_from_answer(10), data_y))
 	data_y = torch.tensor( data_y )
 	return data_y
 	
-	
 
-class Mnist(AbstractNetwork):
+class CustomTensorDataset():
+	def __init__(self, *tensors) -> None:
+		self.tensors = tensors
+
+	def __getitem__(self, index):
+		print(index)
+		return tuple(tensor[index] for tensor in self.tensors)
+
+	def __len__(self):
+		return self.tensors[0].size(0)
+
+
+class Mnist(AbstractModel):
 	
 	
 	def __init__(self):
 		
-		AbstractNetwork.__init__(self)
+		AbstractModel.__init__(self)
 		
 		self.mnist_data = None
 		
@@ -67,8 +72,10 @@ class Mnist(AbstractNetwork):
 		Returns normalized train and test datasets
 		"""
 		
+		data_path = os.path.join(os.getcwd(), "data", "mnist.npz")
+		
 		if self.mnist_data is None:
-			self.mnist_data = np.load("data/mnist.npz", allow_pickle=True)
+			self.mnist_data = np.load(data_path, allow_pickle=True)
 		
 		tensor = {}
 		tensor["x_train"] = data_normalize_x(self.mnist_data["x_train"])
@@ -139,25 +146,6 @@ class Mnist(AbstractNetwork):
 		if type == "control":
 			if predict != y:
 				print (str(predict) + "|" + str(y))
-				#print ("Correct answer", y)
-				#show_image_in_plot(tensor_x, cmap='gray')
 			
 		return predict == y
 		
-	
-	def create_model(self):
-		
-		AbstractNetwork.create_model(self)
-		
-		self.max_acc = 0.95
-		self.max_epochs = 10
-		self.batch_size = 64
-		self.input_shape = (784)
-		self.output_shape = (10)
-		
-		self.model = nn.Sequential(
-			nn.Linear(784, 128),
-			nn.ReLU(),
-			nn.Linear(128, 10),
-			#nn.Softmax()
-		)

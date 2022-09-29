@@ -64,12 +64,7 @@ class Mnist4(Mnist):
 			
 			def forward(self, x):
 				
-				"""
-				if len(x.shape) == 2:
-					x = x[None,:]
-				else:
-					x = x[:,None,:]
-				"""
+				# None, 28, 28 => None, 1, 28, 28
 				x = x[:,None,:]
 				
 				self.net.print_debug("Input:", x.shape)
@@ -119,7 +114,5 @@ class Mnist4(Mnist):
 		self.model = Model(self)
 		
 		self.optimizer = torch.optim.Adam(self.model.parameters(), lr=3e-4)
-		#self.loss = nn.NLLLoss()
 		self.loss = nn.MSELoss()
-		#self.loss = nn.CrossEntropyLoss()
 		

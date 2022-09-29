@@ -191,15 +191,14 @@ function onMouse(event_name)
 
 async function init1()
 {
-	model = await ort.InferenceSession.create('./mnist3.onnx', {
+	let file = './mnist3.onnx';
+	
+	file = './4new.onnx';
+	file = './mnist4.onnx';
+	
+	model = await ort.InferenceSession.create(file, {
 		//"executionProviders": ["webgl"]
 	});
-}
-
-async function init2()
-{
-	model = new onnx.InferenceSession({ backendHint: "webgl" });
-	await model.loadModel("./mnist4.onnx");
 }
 
 async function predict1(input)
@@ -209,15 +208,6 @@ async function predict1(input)
 	let res = await model.run({ 'input': input });
 	let output = res['output'].data;
 	return output;
-}
-
-async function predict2(input)
-{
-	//input = Float32Array.from(input);
-	let output = await model.run([ input ]);
-	let tensor = output.values().next().value;
-	let data = tensor.data;
-	return data;
 }
 
 function getRGBAColor(data, pos)

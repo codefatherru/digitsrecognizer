@@ -1,5 +1,4 @@
 data
-test.py
 web/*.onnx
 
 # Byte-compiled / optimized / DLL files
