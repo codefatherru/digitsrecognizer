@@ -194,7 +194,7 @@ async function init1()
 	let file = './mnist3.onnx';
 	
 	file = './4new.onnx';
-	file = './mnist4.onnx';
+	//file = './mnist4.onnx';
 	
 	model = await ort.InferenceSession.create(file, {
 		//"executionProviders": ["webgl"]

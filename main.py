@@ -37,6 +37,8 @@ def do_train(model:CoreModel):
 
 def do_saveonnx(model:CoreModel):
 	
+	model.load()
+	
 	if model.is_loaded():
 		model.save_onnx()
 	
@@ -45,7 +47,7 @@ def do_answer(model:CoreModel):
 	
 	model.load_dataset(type="train")
 	
-	index = 25
+	index = 250
 	vector_x = torch.tensor([])
 	
 	x = model.test_dataset[index][0]
@@ -69,9 +71,9 @@ def main():
 	model = create_model("4new")
 	#model.summary()
 	
-	do_train(model)
-	#do_saveonnx(model)
-	do_answer(model)
+	#do_train(model)
+	do_saveonnx(model)
+	#do_answer(model)
 	
 	pass
 

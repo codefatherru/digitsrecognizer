@@ -6,6 +6,7 @@
 ##
 
 import torch, os, math, random, time, sys, io
+import torch.nn.functional as F
 import numpy as np
 
 from PIL import Image, ImageDraw
@@ -156,11 +157,79 @@ def create_model(model_name):
 				
 				layer("Dropout", 0.50),
 				layer("Linear", model.output_shape),
-				#layer("Softmax"),
+				layer("Softmax"),
 			],
 			
 		)
+	
+	
+	elif model_name == "4old":
 		
+		class Module(nn.Module):
+			
+			def __init__(self, model):
+				super(Module, self).__init__()
+				
+				self.model = model
+				
+				# Дополнительные слои
+				self.softmax = nn.Softmax(-1)
+				self.max_pool = nn.MaxPool2d(2, 2)
+				self.drop25 = nn.Dropout(0.25)
+				self.drop50 = nn.Dropout(0.50)
+				
+				# Сверточный слой
+				self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=(1,1))
+				self.conv2 = nn.Conv2d(32, 128, kernel_size=3, padding=(1,1))
+				
+				# Полносвязный слой
+				self.fc1 = nn.Linear(6272, 512)
+				self.fc2 = nn.Linear(512, model.output_shape)
+			
+			
+			def forward(self, x):
+				
+				# None, 28, 28 => None, 1, 28, 28
+				x = x[:,None,:]
+				
+				# Сверточный слой 1
+				# Вход: 1, 28, 28
+				x = F.relu(self.conv1(x))
+				
+				# Выход: 32, 28, 28
+				
+				# Макс пулинг
+				x = self.max_pool(x)
+				
+				# Выход: 32, 14, 14
+				
+				# Сверточный слой 2
+				x = F.relu(self.conv2(x))
+				
+				# Выход: 128, 14, 14
+				
+				# Макс пулинг
+				x = self.max_pool(x)
+				
+				# Выход: 128, 7, 7
+				
+				# Выравнивающий слой
+				x = self.drop25(x)
+				x = x.view(-1, 6272)
+				
+				# Выход: 6272
+				
+				# Полносвязный слои
+				x = F.relu(self.fc1(x))
+				x = self.drop50(x)
+				x = self.fc2(x)
+				x = self.softmax(x)
+				
+				return x
+		
+		model.module = Module(model)
+		
+	
 	if model.optimizer is None:
 		model.optimizer = torch.optim.Adam(model.module.parameters(), lr=3e-4)
 		
