@@ -143,3 +143,91 @@ model_info = create_model()
 
 # Show model info
 summary(model_info["model"], (model_info["input_shape"],))
+
+# Обучение модели
+
+epochs = 20
+
+model_info = create_model()
+
+model = model_info["model"]
+optimizer = model_info["optimizer"]
+loss = model_info["loss"]
+
+model = model.to(tensor_device)
+
+history = {
+    "loss_train": [],
+    "loss_test": [],
+}
+
+for step_index in range(epochs):
+
+    loss_train = 0
+    loss_test = 0
+
+    batch_iter = 0
+
+    # Обучение
+    for batch_x, batch_y in train_loader:
+
+        batch_x = batch_x.to(tensor_device)
+        batch_y = batch_y.to(tensor_device)
+
+        # Вычислим результат модели
+        model_res = model(batch_x)
+
+        # Найдем значение ошибки между ответом модели и правильными ответами
+        loss_value = loss(model_res, batch_y)
+        loss_train = loss_value.item()
+
+        # Вычислим градиент
+        optimizer.zero_grad()
+        loss_value.backward()
+
+        # Оптимизируем
+        optimizer.step()
+
+        # Очистим кэш CUDA
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+        del batch_x, batch_y
+
+        batch_iter = batch_iter + batch_size
+        batch_iter_value = round(batch_iter / train_count * 100)
+        print(f"\rStep {step_index + 1}, {batch_iter_value}%", end='')
+
+    # Вычислим ошибку на тестовом датасете
+    for batch_x, batch_y in test_loader:
+        batch_x = batch_x.to(tensor_device)
+        batch_y = batch_y.to(tensor_device)
+
+        # Вычислим результат модели
+        model_res = model(batch_x)
+
+        # Найдем значение ошибки между ответом модели и правильными ответами
+        loss_value = loss(model_res, batch_y)
+        loss_test = loss_value.item()
+
+    # Отладочная информация
+    # if i % 10 == 0:
+    print("\r", end='')
+    print(f"Step {step_index + 1}, loss: {loss_train},\tloss_test: {loss_test}")
+
+    # Остановим обучение, если ошибка меньше чем 0.01
+    if loss_test < 0.015 and step_index > 5:
+        break
+
+    # Добавим значение ошибки в историю, для дальнейшего отображения на графике
+    history["loss_train"].append(loss_train)
+    history["loss_test"].append(loss_test)
+
+
+#Покажем график обучения:
+plt.plot( np.multiply(history['loss_train'], 100), label='Ошибка обучения')
+plt.plot( np.multiply(history['loss_test'], 100), label='Ошибка на тестах')
+plt.ylabel('Процент')
+plt.xlabel('Эпоха')
+plt.legend()
+plt.show()
