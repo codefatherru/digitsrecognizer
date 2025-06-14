@@ -231,3 +231,38 @@ plt.ylabel('Процент')
 plt.xlabel('Эпоха')
 plt.legend()
 plt.show()
+
+#Проверка модели
+#Напишем функцию, которая по вектору, которая отвечает модель, будет возвращаться ответ ввиде числа, а не вектора.
+
+def get_answer_from_vector(vector):
+    r"""
+    Returns answer from vector
+    """
+    value_max = -math.inf
+    value_index = 0
+    for i in range(0, len(vector)):
+        value = vector[i]
+        if value_max < value:
+            value_index = i
+            value_max = value
+
+    return value_index
+
+# Проверим как правильно отвечает модель:
+
+photo_number = 200
+photo = data_orig["test"]["x"][photo_number]
+correct_answer = data_orig["test"]["y"][photo_number]
+
+tensor_x = data_normalize_x(photo)
+tensor_x = tensor_x[None, :]
+tensor_y = model(tensor_x)
+
+model_answer = get_answer_from_vector(tensor_y[0].tolist())
+
+print("Model answer", model_answer)
+print("Correct answer", correct_answer)
+
+plt.imshow(photo, cmap='gray')
+plt.show()
