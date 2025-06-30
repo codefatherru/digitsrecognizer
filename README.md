@@ -24,9 +24,13 @@ To load this dataset in your code use following function
 
 https://www.kaggle.com/datasets/vikramtiwari/mnist-numpy
 
+??? https://habr.com/ru/articles/668144/ Подгон под MNIST-овский датасет
+
 ##  Roman numerals 
 
 ??? https://agneevmukherjee.github.io/agneev-blog/preparing-a-Roman-MNIST/
+
+??? https://github.com/AhmetTumis/mnist-png-to-csv-converter/blob/main/main.py
 
 https://www.kaggle.com/datasets/shubhamcodez/roman-number110-dataset?resource=download
 

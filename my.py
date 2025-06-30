@@ -26,6 +26,9 @@ print ("Train answers", data_orig["train"]["y"].shape)
 print ("Test images", data_orig["test"]["x"].shape)
 print ("Test answers", data_orig["test"]["y"].shape)
 
+#print (data_orig["train"]["x"][256].shape)
+#print (data_orig["train"]["x"][256])
+
 '''
 photo_number=256 #Загрузим из датасета определенное фото и отобразим его на экране. Должна отобразиться цифра, которая находится на позиции photo_number.
 print ("Number:", data_orig["train"]["y"][photo_number])
