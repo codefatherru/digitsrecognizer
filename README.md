@@ -1,6 +1,6 @@
 # digits recognizer
 
-
+проект распознование цифр из MNIST при помощи torch
 
 ## Getting Started
 
@@ -8,7 +8,9 @@ https://blog.bayrell.org/ru/iskusstvennyj-intellekt/418-raspoznavanie-czifry-po-
 
 > python my.php
 
-использует готовый датасет mnist в формате CSV
+использует готовый датасет mnist в формате CSV.
+по ключу Y - значение числа
+по ключу X - массивы 28х28 чисел в оттенках серого 0-255
 
 > wget https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz -O "mnist.npz"
 
