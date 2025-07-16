@@ -21,7 +21,7 @@ inverted_img = ImageOps.invert(image_file)
 img_grey = inverted_img.convert('L') # convert image to grayscale
 #image_file.save('testimage.gif')
 
-value = np.asarray(img_grey.getdata(), dtype=np.integer ).reshape((img_grey.size[1], img_grey.size[0]))
+value = np.asarray(img_grey.getdata(), dtype=np.int32 ).reshape((img_grey.size[1], img_grey.size[0]))
 print(value)
 # перевели матрицу в массив
 fvalue = value.flatten()

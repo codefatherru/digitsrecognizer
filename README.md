@@ -47,6 +47,20 @@ https://www.kaggle.com/datasets/vikramtiwari/mnist-numpy
 
 ??? https://habr.com/ru/articles/668144/ Подгон под MNIST-овский датасет
 
+###  приведение к MNIST
+
+_Исходные MNIST-овские цифры помещаются в квадратную картинку 20x20 пикселей. Затем вычисляется центр масс изображения и оно располагается на поле размера 28x28 пикселей таким образом, чтобы центр масс совпадал с центром поля. Именно к такому виду мы и должны подгонять наши данные._
+
+инвертируем, приводим к 28х28
+> python img.py
+
+https://habr.com/ru/articles/668144/
+
+реализация модельки для распознавания MNIST-овских чисел через tensorflow https://machinelearningmastery.com/how-to-develop-a-convolutional-neural-network-from-scratch-for-mnist-handwritten-digit-classification/
+
+курс https://github.com/spbu-math-cs/ml-course
+
+
 ##  Roman numerals 
 
 ??? https://agneevmukherjee.github.io/agneev-blog/preparing-a-Roman-MNIST/
