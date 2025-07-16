@@ -9,6 +9,7 @@ https://blog.bayrell.org/ru/iskusstvennyj-intellekt/418-raspoznavanie-czifry-po-
 > python my.php
 
 использует готовый датасет mnist в формате CSV.
+массивы ["x_train"],["y_train"],["x_test"],["y_test"]
 по ключу Y - значение числа
 по ключу X - массивы 28х28 чисел в оттенках серого 0-255
 
@@ -23,6 +24,24 @@ To load this dataset in your code use following function
 >       return (x_train, y_train), (x_test, y_test)
 > 
 > (x_train, y_train), (x_test, y_test) = load_data('../input/mnist.npz')
+
+скрипт разбора PNG картинок в CSV
+> python .\tocsv.py 
+
+### Ошибки
+даёт 
+>ValueError: setting an array element with a sequence. The requested array has an inhomogeneou
+s shape after 1 dimensions. The detected shape was (985,) + inhomogeneous part.
+
+при разборе 
+8_cap_450.png
+[8 0 0 ... 0 0 0]
+8_cap_451.png
+[8 0 0 ... 0 0 0]
+8_cap_452.png
+[8 0 0 ... 0 0 0]
+
+
 
 https://www.kaggle.com/datasets/vikramtiwari/mnist-numpy
 
@@ -42,4 +61,4 @@ https://www.kaggle.com/datasets/agneev/yaromnist-dataset
 
 https://www.kaggle.com/datasets/agneev/combined-handwritten-roman-numerals-dataset 
 
-https://www.kaggle.com/datasets/agneev/basedonenglishhandwrittencharactersmodified 
+https://www.kaggle.com/

@@ -9,8 +9,24 @@ import os
 def roman_to_arabian(letter):
     if letter == 'x':
         return 10
+    elif letter == 'ix':
+        return 9
+    elif letter == 'iv':
+        return 4
     elif letter == 'v':
         return 5
+    elif letter == 'vi':
+        return 6
+    elif letter == 'vii':
+        return 7
+    elif letter == 'viii':
+        return 8
+    elif letter == 'i':
+        return 1
+    elif letter == 'ii':
+        return 2
+    elif letter == 'iii':
+        return 3
     return None
 
 def png_to_csv(png):
@@ -35,30 +51,32 @@ for dirname, dirnames, filenames in os.walk('.'):
 
     for filename in filenames:
         #print(dirname)
-        print(filename)
+        #print(filename)
         dirs = dirname.split(os.path.sep)
         #print(dirs)
 
         if len(dirs) > 2 and '.png' in filename:
             letter = dirs[-1]
             vol = dirs[-2]
+            print(filename)
             #print(vol, letter)
 
             line = png_to_csv(os.path.join(dirname, filename))
 
             # вставим в первую позицию значение картинки
             arrayToDump = np.insert(line, 0, roman_to_arabian(letter))
-            #print(arrayToDump)
+            print(arrayToDump)
             if not (vol in files):
                 #print(vol)
                 files[vol] = []
-            print(len(files[vol]))
+            #print(len(files[vol]))
             files[vol].append(arrayToDump)
 
-
+print('Запись в CSV')
 for k, v in files.items():
     print(k)
-    #print(v)
+    print(len(v))
+    #print((v))
     with open('mnist_'+ k +'.csv', "a") as f:
         np.savetxt(f, v, fmt="%d", delimiter=",")
 
