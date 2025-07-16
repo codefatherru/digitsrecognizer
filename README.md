@@ -51,7 +51,7 @@ https://www.kaggle.com/datasets/vikramtiwari/mnist-numpy
 
 _Исходные MNIST-овские цифры помещаются в квадратную картинку 20x20 пикселей. Затем вычисляется центр масс изображения и оно располагается на поле размера 28x28 пикселей таким образом, чтобы центр масс совпадал с центром поля. Именно к такому виду мы и должны подгонять наши данные._
 
-инвертируем, приводим к 28х28
+инвертируем, обрезаем пустые края, приводим к 28х28
 > python img.py
 
 https://habr.com/ru/articles/668144/
@@ -59,6 +59,9 @@ https://habr.com/ru/articles/668144/
 реализация модельки для распознавания MNIST-овских чисел через tensorflow https://machinelearningmastery.com/how-to-develop-a-convolutional-neural-network-from-scratch-for-mnist-handwritten-digit-classification/
 
 курс https://github.com/spbu-math-cs/ml-course
+
+Extract all bounding boxes - найти контур, ограничивающий цифру, взять его в качестве основного изображения и сделать resize до нужных размеров. Пример, как это можно делать. В том числе может пригодиться, если необходимо распознавать числа из более чем одной цифры
+https://stackoverflow.com/questions/21104664/extract-all-bounding-boxes-using-opencv-python
 
 
 ##  Roman numerals 
