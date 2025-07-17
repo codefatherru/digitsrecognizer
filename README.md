@@ -63,6 +63,9 @@ https://habr.com/ru/articles/668144/
 Extract all bounding boxes - найти контур, ограничивающий цифру, взять его в качестве основного изображения и сделать resize до нужных размеров. Пример, как это можно делать. В том числе может пригодиться, если необходимо распознавать числа из более чем одной цифры
 https://stackoverflow.com/questions/21104664/extract-all-bounding-boxes-using-opencv-python
 
+скрипт перевода PNG картинок в MNIST формат. 28х28 негатив
+> python .\to28.py 
+
 
 ##  Roman numerals 
 
