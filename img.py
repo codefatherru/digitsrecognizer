@@ -1,4 +1,5 @@
 # пробный файл для преобразования изображений к MNIST
+import math
 
 import matplotlib.pyplot as plt
 from PIL import Image, ImageOps
@@ -41,10 +42,29 @@ def rec_digit(img_path):
         gray = gray[:-1]
     while np.sum(gray[:, -1]) == 0:
         gray = np.delete(gray, -1, 1)
-    rows, сols = gray.shape
+    rows, cols = gray.shape
 
     cv2.imwrite('gray_box.png', gray)
-    gray = cv2.resize(gray, (28, 28))
+
+    # изменяем размер, чтобы помещалось в box 20x20 пикселей
+    if rows > cols:
+        factor = 20.0 / rows
+        rows = 20
+        cols = int(round(cols * factor))
+        gray = cv2.resize(gray, (cols, rows))
+    else:
+        factor = 20.0 / cols
+        cols = 20
+        rows = int(round(rows * factor))
+        gray = cv2.resize(gray, (cols, rows))
+
+    cv2.imwrite('gray_20.png', gray)
+
+    #расширяем картинку до 28x28 пикселей, добавляя черные ряды и столбцы по краям
+    colsPadding = (int(math.ceil((28 - cols) / 2.0)), int(math.floor((28 - cols) / 2.0)))
+    rowsPadding = (int(math.ceil((28 - rows) / 2.0)), int(math.floor((28 - rows) / 2.0)))
+    gray = np.pad(gray, (rowsPadding, colsPadding), 'constant')
+
     cv2.imwrite('gray.png', gray)
     #img = gray / 255.0
     #img = np.array(img).reshape(-1, 28, 28, 1)
