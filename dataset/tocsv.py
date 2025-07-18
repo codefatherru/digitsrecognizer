@@ -1,6 +1,6 @@
 # from https://github.com/AhmetTumis/mnist-png-to-csv-converter/blob/main/main.py
 
-from PIL import Image, ImageOps
+import cv2
 import numpy as np
 import os
 
@@ -29,17 +29,19 @@ def roman_to_arabian(letter):
         return 3
     return None
 
-def png_to_csv(png):
-    image_file = Image.open(png)
-    inverted_img = ImageOps.invert(image_file)
-    img_grey = inverted_img.convert('L') # convert image to grayscale
-    #image_file.save('testimage.gif')
-
-    value = np.asarray(img_grey.getdata(), dtype=np.integer ).reshape((img_grey.size[1], img_grey.size[0]))
-    #print(value)
+def png_to_csv(img_path):
+    img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE) # массив массивов [[255 255 255 ... 255 255 255]
+    #print(img)
+    gray = 255 - img # инверсия в негатив [[0 0 0 ... 0 0 0]
+    #print(gray)
+    gray = cv2.resize(gray, (28, 28)) # [[  0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   00   0   0   0   0   0   0   0   0   0]
+    #@todo понять разницу
+    #print(gray)
+    #return gray  # массив 28на28
     # перевели матрицу в массив
-    fvalue = value.flatten()
-    #print(fvalue)
+    fvalue = gray.flatten()
+    #print('invert ', fvalue)
+    #exit(8)
     return fvalue
 
 
@@ -50,12 +52,12 @@ for dirname, dirnames, filenames in os.walk('.'):
 
 
     for filename in filenames:
-        #print(dirname)
-        #print(filename)
+        print(dirname)
+        print(filename)
         dirs = dirname.split(os.path.sep)
         #print(dirs)
 
-        if len(dirs) > 2 and '.png' in filename:
+        if (dirname.startswith('.'+os.path.sep+'test') or dirname.startswith('.'+os.path.sep+'train') or dirname.startswith('.'+os.path.sep+'val') ) and len(dirs) > 2 and '.png' in filename:
             letter = dirs[-1]
             vol = dirs[-2]
             print(filename)
@@ -76,7 +78,7 @@ print('Запись в CSV')
 for k, v in files.items():
     print(k)
     print(len(v))
-    #print((v))
+    print((v))
     with open('mnist_'+ k +'.csv', "a") as f:
         np.savetxt(f, v, fmt="%d", delimiter=",")
 

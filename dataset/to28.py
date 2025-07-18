@@ -7,7 +7,7 @@ import math
 
 def png_to_28(img_path):
     img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-    gray = img #оставляем белый фон
+    gray = 255 - img #инвертируем
 
     # применяем пороговую обработку
     (thresh, gray) = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
@@ -42,6 +42,8 @@ def png_to_28(img_path):
     colsPadding = (int(math.ceil((28 - cols) / 2.0)), int(math.floor((28 - cols) / 2.0)))
     rowsPadding = (int(math.ceil((28 - rows) / 2.0)), int(math.floor((28 - rows) / 2.0)))
     gray = np.pad(gray, (rowsPadding, colsPadding), 'constant')
+
+    gray = 255 - gray  # инвертируем
 
     rez = cv2.imwrite(img_path.replace(".", '.'+os.path.sep+'28', 1), gray)
 

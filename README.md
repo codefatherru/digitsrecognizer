@@ -25,7 +25,7 @@ To load this dataset in your code use following function
 > 
 > (x_train, y_train), (x_test, y_test) = load_data('../input/mnist.npz')
 
-скрипт разбора PNG картинок в CSV
+скрипт разбора PNG картинок в CSV. картинки лежат в dataset/*, результат сохраняется в dataset/mnist_test.csv и тд
 > python .\tocsv.py 
 
 ### Ошибки
@@ -51,7 +51,7 @@ https://www.kaggle.com/datasets/vikramtiwari/mnist-numpy
 
 _Исходные MNIST-овские цифры помещаются в квадратную картинку 20x20 пикселей. Затем вычисляется центр масс изображения и оно располагается на поле размера 28x28 пикселей таким образом, чтобы центр масс совпадал с центром поля. Именно к такому виду мы и должны подгонять наши данные._
 
-инвертируем, обрезаем пустые края, приводим к 28х28
+инвертируем, обрезаем пустые края, приводим к 28х28. результат лежит в папке ./dataset/28
 > python img.py
 
 https://habr.com/ru/articles/668144/

@@ -10,7 +10,7 @@ import cv2
 
 png = "dataset\\val\\viii\\8_cap_450.png"
 png = "dataset\\train\\viii\\viii_031.png"
-png = "dataset\\train\\viii\\viii_401.png"
+#png = "dataset\\train\\viii\\viii_401.png" #пример был плохой из-за чёрного фона
 
 # loads the images in grayscale mode and converts all the pixels that aren’t very dark (brightness of 43 or less) to white
 def convert_images(input_folder, output_folder):
@@ -28,7 +28,7 @@ def convert_images(input_folder, output_folder):
 def rec_digit(img_path):
     img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
     gray = 255 - img
-    gray = img #оставляем белый фон
+    #gray = img #оставляем белый фон
 
     # применяем пороговую обработку
     (thresh, gray) = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
