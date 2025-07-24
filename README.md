@@ -56,7 +56,21 @@ _Исходные MNIST-овские цифры помещаются в квад
 
 https://habr.com/ru/articles/668144/
 
-реализация модельки для распознавания MNIST-овских чисел через tensorflow https://machinelearningmastery.com/how-to-develop-a-convolutional-neural-network-from-scratch-for-mnist-handwritten-digit-classification/
+Попробуем взять за основу реализацию модельки для распознавания MNIST-овских чисел через tensorflow https://machinelearningmastery.com/how-to-develop-a-convolutional-neural-network-from-scratch-for-mnist-handwritten-digit-classification/ (копия сохранена)
+важны комментарии к статье (Confirm you have Keras 2.3 and Tensorflow 2.0 installed.)
+
+### ошибки
+pip show tensorflow
+
+pip install tensorflow==2.0
+>tensorflow 2.0 and tensorflow 2.1 require Python 2.7 and 3.4-3.7 but not higher.
+
+`Python39\lib\typing.py", line 215, in _remove_dups_flatten
+    all_params = set(params)
+TypeError: unhashable type: 'list'__
+`
+
+https://www.python.org/downloads/ 
 
 курс https://github.com/spbu-math-cs/ml-course
 
