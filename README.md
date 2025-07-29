@@ -60,12 +60,34 @@ https://habr.com/ru/articles/668144/
 важны комментарии к статье (Confirm you have Keras 2.3 and Tensorflow 2.0 installed.)
 
 ### ошибки
-pip show tensorflow
+
+.\venv\Scripts\activate
+
+Необходима версия Python 3.5-3.8
+TensorFlow поддерживает Python 3.5-3.8. Если используется версия Python не из этого диапазона, то TensorFlow не будет найден. В этом случае, необходимо установить поддерживаемую версию Python.
+
+Начиная с TensorFlow 2.16, одной из последних версий, официально поддерживаются версии Python 3.7, 3.8, 3.9, 3.10, 3.11 и 3.12
+
+например, выполнение скрипта hello.py с помощью версии 3.10: py -3.10 hello.py
+
+
 
 pip install tensorflow==2.0
 >tensorflow 2.0 and tensorflow 2.1 require Python 2.7 and 3.4-3.7 but not higher.
 
-`Python39\lib\typing.py", line 215, in _remove_dups_flatten
+по статье (сохранена)  https://www.pdfcup.com/2022/02/how-to-downgrade-python-version-from.html 
+ставим версию https://www.python.org/ftp/python/3.7.8/python-3.7.8-amd64.exe
+
+python.exe -m pip install --upgrade pip
+
+C:\python\digitsrecognizer2>pip install tensorflow
+Defaulting to user installation because normal site-packages is not writeable
+
+pip show tensorflow
+Name: tensorflow
+Version: 2.11.0
+
+> `Python39\lib\typing.py", line 215, in _remove_dups_flatten
     all_params = set(params)
 TypeError: unhashable type: 'list'__
 `
