@@ -24,11 +24,23 @@ from tensorflow.keras.optimizers import SGD
 def load_dataset():
 	# load dataset
 	(trainX, trainY), (testX, testY) = mnist.load_data()
+	print(trainX) # массив массивов
+	# [[[0 0 0 ... 0 0 0]
+	# [0 0 0 ... 0 0 0]
+
+	print(trainX.shape) #(60000, 28, 28)
+	print(trainX.shape[0]) #60000
+	print(trainY) #[5 0 4 ... 5 6 8]
+	print(trainY.shape) #(60000,)
 	# reshape dataset to have a single channel
 	trainX = trainX.reshape((trainX.shape[0], 28, 28, 1))
 	testX = testX.reshape((testX.shape[0], 28, 28, 1))
 	# one hot encode target values
-	trainY = to_categorical(trainY)
+	trainY = to_categorical(trainY) #Преобразует вектор класса (целые числа) в двоичную классную матрицу
+	print(trainY) #[[0. 0. 0. ... 0. 0. 0.]
+	# [1. 0. 0. ... 0. 0. 0.]
+	print(trainY.shape) #(60000, 10)
+	exit(3)
 	testY = to_categorical(testY)
 	return trainX, trainY, testX, testY
 
