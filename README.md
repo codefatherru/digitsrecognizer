@@ -54,7 +54,7 @@ _Исходные MNIST-овские цифры помещаются в квад
 инвертируем, обрезаем пустые края, приводим к 28х28. результат лежит в папке ./dataset/28
 > python img.py
 
-https://habr.com/ru/articles/668144/
+https://habr.com/ru/articles/668144/ - отсюда и берём примеры самой сетки
 
 Попробуем взять за основу реализацию модельки для распознавания MNIST-овских чисел через tensorflow https://machinelearningmastery.com/how-to-develop-a-convolutional-neural-network-from-scratch-for-mnist-handwritten-digit-classification/ (копия сохранена)
 важны комментарии к статье (Confirm you have Keras 2.3 and Tensorflow 2.0 installed.)

@@ -3,6 +3,9 @@
 
 ## сеть из статьи https://habr.com/ru/articles/668144/
 
+import sys
+if sys.version_info[0:2] != (3, 7):
+    raise Exception('Requires python 3.7.8')
 
 import os
 
@@ -18,6 +21,25 @@ from tensorflow.keras.layers import MaxPooling2D
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.optimizers import SGD
+
+
+
+import cv2
+import numpy as np
+
+
+def rec_digit(img_path):
+	global model
+
+	img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+	gray = 255 - img
+
+	gray = cv2.resize(gray, (28, 28))
+	cv2.imwrite('gray' + img_path, gray)
+	img = gray / 255.0
+	img = np.array(img).reshape(-1, 28, 28, 1)
+	out = str(np.argmax(model.predict(img)))
+	return out
 
 
 # load train and test dataset
@@ -40,7 +62,7 @@ def load_dataset():
 	print(trainY) #[[0. 0. 0. ... 0. 0. 0.]
 	# [1. 0. 0. ... 0. 0. 0.]
 	print(trainY.shape) #(60000, 10)
-	exit(3)
+	#exit(3)
 	testY = to_categorical(testY)
 	return trainX, trainY, testX, testY
 
@@ -59,6 +81,7 @@ def prep_pixels(train, test):
 
 # define cnn model
 def define_model():
+	global model
 	model = Sequential()
 	model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', input_shape=(28, 28, 1)))
 	model.add(MaxPooling2D((2, 2)))
@@ -89,6 +112,12 @@ def run_test_harness():
 	_, acc = model.evaluate(testX, testY, verbose=0)
 	print('> %.3f' % (acc * 100.0))
 
+	r = rec_digit('.\\dataset\\train\\v\\5white.png')
+	#r = rec_digit('.\\dataset\\train\\viii\\8.png')
+	print(r)
+
+model = None
 
 # entry point, run the test harness
 run_test_harness()
+
